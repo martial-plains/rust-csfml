@@ -1,3 +1,4 @@
+mod buffer;
 pub mod clock;
 mod input_stream;
 mod mutex;
@@ -6,6 +7,7 @@ pub mod time;
 mod vector2;
 mod vector3;
 
+pub use buffer::*;
 pub use input_stream::*;
 pub use mutex::*;
 pub use sleep::sleep;
