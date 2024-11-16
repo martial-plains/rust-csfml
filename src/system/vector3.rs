@@ -46,3 +46,30 @@ impl From<sfVector3f> for Vector3f {
         Self { x, y, z }
     }
 }
+
+impl From<Vector3f> for sfVector3f {
+    fn from(Vector3f { x, y, z }: Vector3f) -> Self {
+        Self { x, y, z }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use sfml_sys::sfVector3f;
+
+    use crate::system::Vector3;
+
+    #[test]
+    fn cfml_vectors() {
+        let vec = Vector3::new(1.0, 3.5, -12.0);
+        let cvec: sfVector3f = vec.into();
+
+        assert_eq!(vec.x, cvec.x);
+        assert_eq!(vec.y, cvec.y);
+        assert_eq!(vec.z, cvec.z);
+
+        let vec2 = Vector3::from(cvec);
+
+        assert_eq!(vec, vec2);
+    }
+}

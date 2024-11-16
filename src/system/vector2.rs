@@ -47,8 +47,20 @@ impl From<sfVector2f> for Vector2f {
     }
 }
 
+impl From<Vector2f> for sfVector2f {
+    fn from(Vector2f { x, y }: Vector2f) -> Self {
+        Self { x, y }
+    }
+}
+
 impl From<sfVector2i> for Vector2i {
     fn from(sfVector2i { x, y }: sfVector2i) -> Self {
+        Self { x, y }
+    }
+}
+
+impl From<Vector2i> for sfVector2i {
+    fn from(Vector2i { x, y }: Vector2i) -> Self {
         Self { x, y }
     }
 }
@@ -56,5 +68,30 @@ impl From<sfVector2i> for Vector2i {
 impl From<sfVector2u> for Vector2u {
     fn from(sfVector2u { x, y }: sfVector2u) -> Self {
         Self { x, y }
+    }
+}
+
+impl From<Vector2u> for sfVector2u {
+    fn from(Vector2u { x, y }: Vector2u) -> Self {
+        Self { x, y }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use sfml_sys::sfVector2i;
+
+    use super::Vector2;
+
+    #[test]
+    fn cfml_vectors() {
+        let vec = Vector2::new(1, 3);
+        let cvec: sfVector2i = vec.into();
+
+        assert_eq!(vec.x, cvec.x);
+        assert_eq!(vec.y, cvec.y);
+
+        let vec2 = Vector2::from(cvec);
+        assert_eq!(vec, vec2);
     }
 }
