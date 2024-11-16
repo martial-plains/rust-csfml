@@ -294,7 +294,8 @@ impl Time {
 
 #[cfg(test)]
 mod test {
-    use crate::utils::assert_approx_eq;
+
+    use crate::assert_approx_eq;
 
     use super::Time;
 
@@ -303,12 +304,12 @@ mod test {
         let mut time = Time::microseconds(5_120_000);
 
         assert_eq!(5120, time.as_milliseconds());
-        assert_approx_eq(5.12, time.as_seconds(), 0.0001);
+        assert_approx_eq!(5.12, time.as_seconds(), 0.0001);
 
         time = Time::seconds(12.0);
-        assert_approx_eq(12.0, time.as_seconds(), 0.0001);
+        assert_approx_eq!(12.0, time.as_seconds(), 0.0001);
 
         time = Time::microseconds(800);
-        assert_approx_eq(0.0008, time.as_seconds(), 0.0001);
+        assert_approx_eq!(0.0008, time.as_seconds(), 0.0001);
     }
 }

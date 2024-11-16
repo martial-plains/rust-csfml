@@ -90,8 +90,8 @@ impl Clock {
 #[cfg(test)]
 mod tests {
     use crate::{
+        assert_approx_eq,
         system::{sleep, time::Time},
-        utils::assert_approx_eq,
     };
 
     use super::Clock;
@@ -102,11 +102,11 @@ mod tests {
         let time = Time::milliseconds(500);
         sleep(time);
 
-        assert_approx_eq(0.5, clock.elapsed_time().as_seconds(), 0.1);
+        assert_approx_eq!(0.5, clock.elapsed_time().as_seconds(), 0.1);
 
         sleep(Time::seconds(0.2));
 
-        assert_approx_eq(0.7, clock.restart().as_seconds(), 0.1);
-        assert_approx_eq(0.0, clock.elapsed_time().as_seconds(), 0.01);
+        assert_approx_eq!(0.7, clock.restart().as_seconds(), 0.1);
+        assert_approx_eq!(0.0, clock.elapsed_time().as_seconds(), 0.01);
     }
 }
