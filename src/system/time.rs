@@ -52,7 +52,7 @@ use sfml_sys::{
 /// - [`sf::Clock`](crate::system::Clock)
 #[derive(Debug, Clone, Copy, AsRef, AsMut, Deref, DerefMut)]
 pub struct Time {
-    pub(crate) __inner: sfTime,
+    __inner: sfTime,
 }
 
 impl Default for Time {
@@ -182,6 +182,18 @@ impl Rem for Time {
 impl RemAssign for Time {
     fn rem_assign(&mut self, rhs: Self) {
         *self = *self % rhs;
+    }
+}
+
+impl From<sfTime> for Time {
+    fn from(value: sfTime) -> Self {
+        Self { __inner: value }
+    }
+}
+
+impl From<Time> for sfTime {
+    fn from(value: Time) -> Self {
+        value.__inner
     }
 }
 

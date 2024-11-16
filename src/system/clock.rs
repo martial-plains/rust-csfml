@@ -67,11 +67,7 @@ impl Clock {
     /// Returns a `Time` object representing the elapsed time.
     #[must_use]
     pub fn elapsed_time(&self) -> Time {
-        unsafe {
-            Time {
-                __inner: sfClock_getElapsedTime(self.__ptr),
-            }
-        }
+        unsafe { Time::from(sfClock_getElapsedTime(self.__ptr)) }
     }
 
     /// Restarts the clock and returns the time elapsed since the last restart.
@@ -83,9 +79,7 @@ impl Clock {
     ///
     /// Returns a `Time` value representing the time elapsed before the restart.
     pub fn restart(&mut self) -> Time {
-        Time {
-            __inner: unsafe { sfClock_restart(self.__ptr) },
-        }
+        Time::from(unsafe { sfClock_restart(self.__ptr) })
     }
 }
 
