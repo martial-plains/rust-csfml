@@ -40,6 +40,7 @@ impl Drop for Mutex {
 
 impl Mutex {
     // Creates a new Mutex
+    #[must_use]
     pub fn new() -> Self {
         Self::default()
     }
@@ -65,6 +66,7 @@ pub struct Lock<'a> {
 
 impl<'a> Lock<'a> {
     // Locks the mutex when the Lock object is created
+    #[must_use]
     pub fn new(mutex: &'a Mutex) -> Self {
         mutex.lock();
 

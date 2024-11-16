@@ -190,7 +190,7 @@ pub struct FileInputStream {
 impl Drop for FileInputStream {
     fn drop(&mut self) {
         if self.file.is_some() {
-            self.file = None
+            self.file = None;
         }
     }
 }
@@ -205,7 +205,7 @@ impl FileInputStream {
     /// `true` on success, `false` on error.
     pub fn open(&mut self, filename: &str) -> bool {
         if self.file.is_some() {
-            self.file = None
+            self.file = None;
         }
 
         self.file = File::open(filename).ok();
@@ -216,14 +216,11 @@ impl FileInputStream {
 
 impl InputStream for FileInputStream {
     fn read(&mut self, data: *mut c_void, size: i64) -> i64 {
-        match &mut self.file {
-            Some(f) => {
-                let buffer = unsafe { slice::from_raw_parts_mut(data as *mut u8, size as usize) };
-                let bytes_read = f.read(buffer).unwrap_or(0);
-                bytes_read as i64
-            }
-            None => -1,
-        }
+        self.file.as_mut().map_or(-1, |f| {
+            let buffer = unsafe { slice::from_raw_parts_mut(data.cast::<u8>(), size as usize) };
+            let bytes_read = f.read(buffer).unwrap_or(0);
+            bytes_read as i64
+        })
     }
 
     fn seek(&mut self, position: i64) -> i64 {
@@ -238,14 +235,9 @@ impl InputStream for FileInputStream {
     }
 
     fn tell(&mut self) -> i64 {
-        if let Some(ref mut file) = self.file {
-            match file.stream_position() {
-                Ok(pos) => pos as i64,
-                Err(_) => -1,
-            }
-        } else {
-            -1
-        }
+        self.file.as_mut().map_or(-1, |file| {
+            file.stream_position().map_or(-1, |pos| pos as i64)
+        })
     }
 
     fn size(&mut self) -> i64 {

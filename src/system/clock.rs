@@ -54,6 +54,7 @@ impl Clock {
     /// # Returns
     ///
     /// Returns a new `Clock` instance.
+    #[must_use]
     pub fn new() -> Self {
         Self::default()
     }
@@ -64,6 +65,7 @@ impl Clock {
     /// # Returns
     ///
     /// Returns a `Time` object representing the elapsed time.
+    #[must_use]
     pub fn elapsed_time(&self) -> Time {
         unsafe {
             Time {

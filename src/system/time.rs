@@ -52,7 +52,7 @@ use sfml_sys::{
 /// - [`sf::Clock`](crate::system::Clock)
 #[derive(Debug, Clone, Copy, AsRef, AsMut, Deref, DerefMut)]
 pub struct Time {
-    pub __inner: sfTime,
+    pub(crate) __inner: sfTime,
 }
 
 impl Default for Time {
@@ -88,7 +88,7 @@ impl Sub for Time {
 impl SubAssign for Time {
     fn sub_assign(&mut self, rhs: Self) {
         let lhs = *self;
-        *self = lhs - rhs
+        *self = lhs - rhs;
     }
 }
 
@@ -103,12 +103,12 @@ impl Add for Time {
 impl AddAssign for Time {
     fn add_assign(&mut self, rhs: Self) {
         let lhs = *self;
-        *self = lhs + rhs
+        *self = lhs + rhs;
     }
 }
 
 impl Mul<f32> for Time {
-    type Output = Time;
+    type Output = Self;
 
     fn mul(self, rhs: f32) -> Self::Output {
         Self::seconds(self.as_seconds() * rhs)
@@ -116,7 +116,7 @@ impl Mul<f32> for Time {
 }
 
 impl Mul<i64> for Time {
-    type Output = Time;
+    type Output = Self;
 
     fn mul(self, rhs: i64) -> Self::Output {
         Self::microseconds(self.as_microseconds() * rhs)
@@ -133,13 +133,13 @@ impl Mul<Time> for i64 {
 
 impl MulAssign<f32> for Time {
     fn mul_assign(&mut self, rhs: f32) {
-        *self = *self * rhs
+        *self = *self * rhs;
     }
 }
 
 impl MulAssign<i64> for Time {
     fn mul_assign(&mut self, rhs: i64) {
-        *self = *self * rhs
+        *self = *self * rhs;
     }
 }
 
@@ -181,7 +181,7 @@ impl Rem for Time {
 
 impl RemAssign for Time {
     fn rem_assign(&mut self, rhs: Self) {
-        *self = *self % rhs
+        *self = *self % rhs;
     }
 }
 
@@ -195,7 +195,8 @@ impl Time {
     /// # Returns
     ///
     /// Returns a `Time` instance representing the specified time.
-    pub fn new(microseconds: i64) -> Self {
+    #[must_use]
+    pub const fn new(microseconds: i64) -> Self {
         Self {
             __inner: sfTime { microseconds },
         }
@@ -210,6 +211,7 @@ impl Time {
     /// # See also
     /// - [`as_milliseconds`]
     /// - [`as_milliseconds`]
+    #[must_use]
     pub fn as_seconds(&self) -> f32 {
         unsafe { sfTime_asSeconds(self.__inner) }
     }
@@ -223,6 +225,7 @@ impl Time {
     /// # See also
     /// - [`as_seconds`]
     /// - [`as_microseconds`]
+    #[must_use]
     pub fn as_milliseconds(&self) -> i32 {
         unsafe { sfTime_asMilliseconds(self.__inner) }
     }
@@ -236,6 +239,7 @@ impl Time {
     /// # See also
     /// - [`as_seconds`]
     /// - [`as_milliseconds`]
+    #[must_use]
     pub fn as_microseconds(&self) -> i64 {
         unsafe { sfTime_asMicroseconds(self.__inner) }
     }
@@ -253,8 +257,9 @@ impl Time {
     /// # See also
     /// - [`milliseconds`]
     /// - [`microseconds`]
+    #[must_use]
     pub fn seconds(amount: f32) -> Self {
-        Self::new((amount * 1000000.0) as i64)
+        Self::new((amount * 1_000_000.0) as i64)
     }
 
     /// Constructs a `Time` value from the given number of milliseconds.
@@ -270,7 +275,8 @@ impl Time {
     /// # See also
     /// - [`seconds`]
     /// - [`microseconds`]
-    pub fn milliseconds(amount: i32) -> Self {
+    #[must_use]
+    pub const fn milliseconds(amount: i32) -> Self {
         Self::new(amount as i64 * 1000)
     }
 
@@ -287,7 +293,8 @@ impl Time {
     /// # See also
     /// - [`seconds`]
     /// - [`milliseconds`]
-    pub fn microseconds(amount: i64) -> Self {
+    #[must_use]
+    pub const fn microseconds(amount: i64) -> Self {
         Self::new(amount)
     }
 }
