@@ -4,16 +4,16 @@ use derive_more::derive::{AsMut, AsRef, Deref, DerefMut};
 use sfml_sys::{
     sfBool, sfMusic, sfMusic_createFromFile, sfMusic_createFromMemory, sfMusic_destroy,
     sfMusic_getAttenuation, sfMusic_getChannelCount, sfMusic_getDuration, sfMusic_getLoop,
-    sfMusic_getLoopPoints, sfMusic_getMinDistance, sfMusic_getPitch, sfMusic_getPlayingOffset,
-    sfMusic_getPosition, sfMusic_getSampleRate, sfMusic_getStatus, sfMusic_getVolume,
-    sfMusic_isRelativeToListener, sfMusic_pause, sfMusic_play, sfMusic_setAttenuation,
-    sfMusic_setLoop, sfMusic_setMinDistance, sfMusic_setPitch, sfMusic_setPlayingOffset,
-    sfMusic_setPosition, sfMusic_setRelativeToListener, sfMusic_setVolume, sfMusic_stop,
+    sfMusic_getMinDistance, sfMusic_getPitch, sfMusic_getPlayingOffset, sfMusic_getPosition,
+    sfMusic_getSampleRate, sfMusic_getStatus, sfMusic_getVolume, sfMusic_isRelativeToListener,
+    sfMusic_pause, sfMusic_play, sfMusic_setAttenuation, sfMusic_setLoop, sfMusic_setMinDistance,
+    sfMusic_setPitch, sfMusic_setPlayingOffset, sfMusic_setPosition, sfMusic_setRelativeToListener,
+    sfMusic_setVolume, sfMusic_stop,
 };
 
 use crate::system::{time::Time, Vector3f};
 
-use super::sound::{self, SoundStatus};
+use super::sound::SoundStatus;
 
 #[derive(Debug, Clone, Deref, DerefMut, AsRef, AsMut)]
 pub struct Music {
