@@ -10,13 +10,15 @@ derive_more = { version = "1.0.0", features = [
     "as_ref",
     "deref",
     "deref_mut",
+    "display",
     "mul",
     "mul_assign",
 ] }
-num = "0.4.3"
-sfml-sys = { path = "sys" }
+csfml-sys = { path = "sys" }
 
 [features]
 default = ["graphics", "audio"]
-audio = ["sfml-sys/audio"]
-graphics = ["sfml-sys/graphics"]
+window = ["csfml-sys/window"]
+audio = ["csfml-sys/audio"]
+graphics = ["csfml-sys/graphics", "window"]
+network = ["csfml-sys/network"]

@@ -1,9 +1,10 @@
-use std::ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Rem, RemAssign, Sub, SubAssign};
-
-use derive_more::derive::{AsMut, AsRef, Deref, DerefMut};
-use sfml_sys::{
-    sfTime, sfTime_Zero, sfTime_asMicroseconds, sfTime_asMilliseconds, sfTime_asSeconds,
+use std::{
+    mem,
+    ops::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Rem, RemAssign, Sub, SubAssign},
 };
+
+use csfml_sys::{sfTime, sfTime_asMicroseconds, sfTime_asMilliseconds, sfTime_asSeconds};
+use derive_more::derive::{AsMut, AsRef, Deref, DerefMut};
 
 /// Represents a time value.
 ///
@@ -50,16 +51,15 @@ use sfml_sys::{
 ///
 /// # See also
 /// - [`sf::Clock`](crate::system::Clock)
+#[repr(C)]
 #[derive(Debug, Clone, Copy, AsRef, AsMut, Deref, DerefMut)]
 pub struct Time {
-    __inner: sfTime,
+    pub microseconds: i64,
 }
 
 impl Default for Time {
     fn default() -> Self {
-        Self {
-            __inner: unsafe { sfTime_Zero },
-        }
+        Self { microseconds: 0 }
     }
 }
 
@@ -187,13 +187,13 @@ impl RemAssign for Time {
 
 impl From<sfTime> for Time {
     fn from(value: sfTime) -> Self {
-        Self { __inner: value }
+        Self::from_csfml(value)
     }
 }
 
 impl From<Time> for sfTime {
     fn from(value: Time) -> Self {
-        value.__inner
+        value.to_csfml()
     }
 }
 
@@ -209,9 +209,15 @@ impl Time {
     /// Returns a `Time` instance representing the specified time.
     #[must_use]
     pub const fn new(microseconds: i64) -> Self {
-        Self {
-            __inner: sfTime { microseconds },
-        }
+        Self { microseconds }
+    }
+
+    pub fn to_csfml(self) -> sfTime {
+        unsafe { mem::transmute(self) }
+    }
+
+    pub fn from_csfml(ptr: sfTime) -> Self {
+        unsafe { mem::transmute(ptr) }
     }
 
     /// Returns the time value as a number of seconds.
@@ -225,7 +231,7 @@ impl Time {
     /// - [`as_milliseconds`]
     #[must_use]
     pub fn as_seconds(&self) -> f32 {
-        unsafe { sfTime_asSeconds(self.__inner) }
+        unsafe { sfTime_asSeconds(self.to_csfml()) }
     }
 
     /// Returns the time value as a number of milliseconds.
@@ -239,7 +245,7 @@ impl Time {
     /// - [`as_microseconds`]
     #[must_use]
     pub fn as_milliseconds(&self) -> i32 {
-        unsafe { sfTime_asMilliseconds(self.__inner) }
+        unsafe { sfTime_asMilliseconds(self.to_csfml()) }
     }
 
     /// Returns the time value as a number of microseconds.
@@ -253,7 +259,7 @@ impl Time {
     /// - [`as_milliseconds`]
     #[must_use]
     pub fn as_microseconds(&self) -> i64 {
-        unsafe { sfTime_asMicroseconds(self.__inner) }
+        unsafe { sfTime_asMicroseconds(self.to_csfml()) }
     }
 
     /// Constructs a `Time` value from the given number of seconds.

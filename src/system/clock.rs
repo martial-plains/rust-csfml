@@ -1,4 +1,6 @@
-use sfml_sys::{sfClock_create, sfClock_destroy, sfClock_getElapsedTime, sfClock_restart};
+use std::ptr;
+
+use csfml_sys::{sfClock_create, sfClock_destroy, sfClock_getElapsedTime, sfClock_restart};
 
 use super::time::Time;
 
@@ -28,20 +30,20 @@ use super::time::Time;
 /// ```
 #[derive(Debug, Clone)]
 pub struct Clock {
-    __ptr: *mut sfml_sys::sfClock,
+    ptr: *mut csfml_sys::sfClock,
 }
 
 impl Default for Clock {
     fn default() -> Self {
         Self {
-            __ptr: unsafe { sfClock_create() },
+            ptr: unsafe { sfClock_create() },
         }
     }
 }
 
 impl Drop for Clock {
     fn drop(&mut self) {
-        unsafe { sfClock_destroy(self.__ptr) };
+        self.destroy();
     }
 }
 
@@ -59,6 +61,11 @@ impl Clock {
         Self::default()
     }
 
+    pub fn destroy(&mut self) {
+        unsafe { sfClock_destroy(self.ptr) };
+        self.ptr = ptr::null_mut();
+    }
+
     /// Gets the time elapsed since the last call to `restart` or the
     /// creation of the clock.
     ///
@@ -67,7 +74,7 @@ impl Clock {
     /// Returns a `Time` object representing the elapsed time.
     #[must_use]
     pub fn elapsed_time(&self) -> Time {
-        unsafe { Time::from(sfClock_getElapsedTime(self.__ptr)) }
+        unsafe { Time::from(sfClock_getElapsedTime(self.ptr)) }
     }
 
     /// Restarts the clock and returns the time elapsed since the last restart.
@@ -79,7 +86,7 @@ impl Clock {
     ///
     /// Returns a `Time` value representing the time elapsed before the restart.
     pub fn restart(&mut self) -> Time {
-        Time::from(unsafe { sfClock_restart(self.__ptr) })
+        Time::from(unsafe { sfClock_restart(self.ptr) })
     }
 }
 

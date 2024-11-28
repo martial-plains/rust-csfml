@@ -24,6 +24,8 @@ async fn main() {
     let feat_window = env::var("CARGO_FEATURE_WINDOW").is_ok();
     let feat_graphics = env::var("CARGO_FEATURE_GRAPHICS").is_ok();
 
+    let feat_network = env::var("CARGO_FEATURE_NETWORK").is_ok();
+
     // If the CSFML directory doesn't exist, download and extract it
     if !Path::new("CSFML").exists() {
         let url = get_cfml_url();
@@ -35,7 +37,13 @@ async fn main() {
 
     // Generate wrapper header and bindings
     let bindings_header = "wrapper.h";
-    generate_wrapper(bindings_header, feat_audio, feat_window, feat_graphics);
+    generate_wrapper(
+        bindings_header,
+        feat_audio,
+        feat_window,
+        feat_graphics,
+        feat_network,
+    );
     generate_bindings(bindings_header);
 }
 
@@ -157,6 +165,7 @@ fn generate_wrapper(
     feat_audio: bool,
     feat_window: bool,
     feat_graphics: bool,
+    feat_network: bool,
 ) {
     let mut file = File::create(bindings_header).unwrap();
     let mut headers = Vec::new();
@@ -179,6 +188,11 @@ fn generate_wrapper(
         link_sfml_subsystem("graphics");
     }
 
+    if feat_network {
+        headers.push("SFML/Network.h");
+        link_sfml_subsystem("network");
+    }
+
     for header in headers {
         writeln!(file, "#include <{header}>").unwrap();
     }
@@ -199,10 +213,7 @@ fn generate_bindings(binding_header: &str) {
         .derive_ord(true)
         .derive_partialeq(true)
         .derive_partialord(true)
-        .default_enum_style(bindgen::EnumVariation::NewType {
-            is_bitfield: true,
-            is_global: true,
-        })
+        .default_enum_style(bindgen::EnumVariation::Consts)
         .prepend_enum_name(false)
         .generate_cstr(true)
         .generate()

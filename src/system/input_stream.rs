@@ -228,7 +228,7 @@ impl InputStream for FileInputStream {
             if file.seek(SeekFrom::Start(position as u64)).is_err() {
                 return -1;
             }
-            self.tell() // Return the current position after seeking
+            self.tell()
         } else {
             -1
         }

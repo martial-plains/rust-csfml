@@ -1,4 +1,4 @@
-use sfml_sys::sfSleep;
+use csfml_sys::sfSleep;
 
 use super::time::Time;
 
@@ -25,5 +25,5 @@ use super::time::Time;
 /// - [`Time`](crate::system::Time) for more on time representations.
 /// - [`Clock`](crate::system::Clock) for time measurement and intervals.
 pub fn sleep(duration: Time) {
-    unsafe { sfSleep(*duration) };
+    unsafe { sfSleep(duration.to_csfml()) };
 }

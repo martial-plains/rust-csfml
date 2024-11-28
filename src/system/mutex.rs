@@ -16,56 +16,57 @@
 //! as small as possible to reduce contention between threads and to
 //! avoid performance bottlenecks.
 
+use std::ptr;
+
+use csfml_sys::{sfMutex, sfMutex_create, sfMutex_destroy, sfMutex_lock, sfMutex_unlock};
 use derive_more::derive::{AsMut, AsRef, Deref, DerefMut};
-use sfml_sys::{sfMutex, sfMutex_create, sfMutex_destroy, sfMutex_lock, sfMutex_unlock};
 
 #[derive(Debug, Clone, Deref, DerefMut, AsRef, AsMut)]
 pub struct Mutex {
-    __ptr: *mut sfMutex, // Pointer to the internal mutex implementation
+    ptr: *mut sfMutex,
 }
 
 impl Default for Mutex {
     fn default() -> Self {
         Self {
-            __ptr: unsafe { sfMutex_create() },
+            ptr: unsafe { sfMutex_create() },
         }
     }
 }
 
 impl Drop for Mutex {
     fn drop(&mut self) {
-        unsafe { sfMutex_destroy(self.__ptr) };
+        unsafe { sfMutex_destroy(self.ptr) };
     }
 }
 
 impl Mutex {
-    // Creates a new Mutex
     #[must_use]
     pub fn new() -> Self {
         Self::default()
     }
 
-    // Locks the mutex, blocking if the mutex is already locked
-    pub fn lock(&self) {
-        unsafe { sfMutex_lock(self.__ptr) };
+    pub fn destroy(&mut self) {
+        unsafe { sfMutex_destroy(self.ptr) };
+        self.ptr = ptr::null_mut();
     }
 
-    // Unlocks the mutex
+    pub fn lock(&self) {
+        unsafe { sfMutex_lock(self.ptr) };
+    }
+
     pub fn unlock(&self) {
-        unsafe { sfMutex_unlock(self.__ptr) };
+        unsafe { sfMutex_unlock(self.ptr) };
     }
 }
 
-// RAII (Resource Acquisition Is Initialization) wrapper for Mutex to automatically unlock
-// the mutex when it goes out of scope
 #[repr(C)]
 #[derive(Debug, Clone)]
 pub struct Lock<'a> {
-    mutex: &'a Mutex, // Reference to the Mutex being locked
+    mutex: &'a Mutex,
 }
 
 impl<'a> Lock<'a> {
-    // Locks the mutex when the Lock object is created
     #[must_use]
     pub fn new(mutex: &'a Mutex) -> Self {
         mutex.lock();
@@ -75,7 +76,6 @@ impl<'a> Lock<'a> {
 }
 
 impl Drop for Lock<'_> {
-    // Automatically unlocks the mutex when the Lock object goes out of scope
     fn drop(&mut self) {
         self.mutex.unlock();
     }

@@ -6,7 +6,7 @@ use core::{
     mem, ptr,
 };
 
-use sfml_sys::{
+use csfml_sys::{
     sfBlack, sfClose, sfEvent, sfEvtClosed, sfFont_createFromFile, sfFont_destroy,
     sfMusic_createFromFile, sfMusic_destroy, sfMusic_play, sfRenderWindow_clear,
     sfRenderWindow_close, sfRenderWindow_create, sfRenderWindow_destroy, sfRenderWindow_display,

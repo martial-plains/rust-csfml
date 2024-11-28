@@ -9,3 +9,8 @@ macro_rules! assert_approx_eq {
         );
     };
 }
+
+pub trait HasCsfmlPointer {
+    type Output;
+    fn mut_ptr(&self) -> *mut Self::Output;
+}
