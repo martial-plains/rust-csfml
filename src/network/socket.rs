@@ -54,12 +54,12 @@ impl Drop for SocketSelector {
 
 impl SocketSelector {
     /// Creates a new socket selector
-    pub fn create() -> Result<SocketSelector, Error> {
+    pub fn create() -> Result<Self, Error> {
         let sock = unsafe { sfSocketSelector_create() };
         if sock.is_null() {
             Err(Error::OtherError)
         } else {
-            Ok(SocketSelector { ptr: sock })
+            Ok(Self { ptr: sock })
         }
     }
 
@@ -71,12 +71,12 @@ impl SocketSelector {
     }
 
     /// Copies this socket selector
-    pub fn copy(&self) -> Result<SocketSelector, Error> {
+    pub fn copy(&self) -> Result<Self, Error> {
         let sock = unsafe { sfSocketSelector_copy(self.ptr) };
         if sock.is_null() {
             Err(Error::OtherError)
         } else {
-            Ok(SocketSelector { ptr: sock })
+            Ok(Self { ptr: sock })
         }
     }
 
@@ -96,6 +96,7 @@ impl SocketSelector {
     }
 
     /// Wait until one of the sockets is ready to receive something (or timeout)
+    #[must_use]
     pub fn wait(&self, timeout: Option<Time>) -> bool {
         let time = timeout.unwrap_or(Time { microseconds: 0 });
         let ret = unsafe { sfSocketSelector_wait(self.ptr, time.to_csfml()) };
@@ -125,7 +126,7 @@ impl TcpListener {
         if sock.is_null() {
             Err(Error::OtherError)
         } else {
-            Ok(TcpListener { ptr: sock })
+            Ok(Self { ptr: sock })
         }
     }
 
@@ -198,10 +199,10 @@ impl TcpSocket {
     /// Creates a new TCP socket
     pub fn create() -> Result<Self, Error> {
         let sock = unsafe { sfTcpSocket_create() };
-        if !sock.is_null() {
-            Ok(TcpSocket { ptr: sock })
-        } else {
+        if sock.is_null() {
             Err(Error::OtherError)
+        } else {
+            Ok(Self { ptr: sock })
         }
     }
 
@@ -331,10 +332,10 @@ impl UdpSocket {
     /// Creates a new UDP socket
     pub fn create() -> Result<Self, Error> {
         let sock = unsafe { sfUdpSocket_create() };
-        if !sock.is_null() {
-            Ok(UdpSocket { ptr: sock })
-        } else {
+        if sock.is_null() {
             Err(Error::OtherError)
+        } else {
+            Ok(Self { ptr: sock })
         }
     }
 
@@ -351,11 +352,13 @@ impl UdpSocket {
     }
 
     /// Tells whether or not the socket is in blocking mode
+    #[must_use]
     pub fn is_blocking(&self) -> bool {
         unsafe { sfUdpSocket_isBlocking(self.ptr) != 0 }
     }
 
     /// Gets the port this socket is bound to (null for no port)
+    #[must_use]
     pub fn get_local_port(&self) -> Option<u16> {
         let port = unsafe { sfUdpSocket_getLocalPort(self.ptr) };
         if port == 0 {
@@ -448,6 +451,7 @@ impl UdpSocket {
     }
 
     /// Gets the max datagram size you can send
+    #[must_use]
     pub fn get_max_datagram_size() -> u32 {
         unsafe { sfUdpSocket_maxDatagramSize() }
     }

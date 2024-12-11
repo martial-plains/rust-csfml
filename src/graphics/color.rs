@@ -116,8 +116,8 @@ impl Color {
         let ff = hh - hh.floor();
 
         let p = v * (1.0 - s);
-        let q = v * (1.0 - s * ff);
-        let t = v * (1.0 - s * (1.0 - ff));
+        let q = v * s.mul_add(-ff, 1.0);
+        let t = v * s.mul_add(-(1.0 - ff), 1.0);
 
         match hh as usize {
             0 => Self::from_floats(v, t, p, a),

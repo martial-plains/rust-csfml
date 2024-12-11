@@ -1,7 +1,7 @@
 use std::ops::Mul;
 
-use derive_more::derive::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 use csfml_sys::{sfVector2f, sfVector2i, sfVector2u, sfVector3f};
+use derive_more::derive::{Add, AddAssign, Div, DivAssign, Mul, MulAssign, Sub, SubAssign};
 
 pub type Vector2i = Vector2<i32>;
 pub type Vector2u = Vector2<u32>;

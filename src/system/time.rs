@@ -52,15 +52,9 @@ use derive_more::derive::{AsMut, AsRef, Deref, DerefMut};
 /// # See also
 /// - [`sf::Clock`](crate::system::Clock)
 #[repr(C)]
-#[derive(Debug, Clone, Copy, AsRef, AsMut, Deref, DerefMut)]
+#[derive(Debug, Clone, Copy, AsRef, AsMut, Deref, DerefMut, Default)]
 pub struct Time {
     pub microseconds: i64,
-}
-
-impl Default for Time {
-    fn default() -> Self {
-        Self { microseconds: 0 }
-    }
 }
 
 impl PartialEq for Time {
@@ -212,10 +206,12 @@ impl Time {
         Self { microseconds }
     }
 
+    #[must_use]
     pub fn to_csfml(self) -> sfTime {
         unsafe { mem::transmute(self) }
     }
 
+    #[must_use]
     pub fn from_csfml(ptr: sfTime) -> Self {
         unsafe { mem::transmute(ptr) }
     }

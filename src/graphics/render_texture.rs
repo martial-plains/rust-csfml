@@ -337,7 +337,7 @@ mod tests {
 
         rentex.display();
 
-        rentex.generate_mipmap();
+        let _ = rentex.generate_mipmap();
 
         assert!(rentex.is_repeated());
         assert!(rentex.is_smooth());

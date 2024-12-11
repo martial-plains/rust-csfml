@@ -1,6 +1,5 @@
 use std::{ffi::CString, os::raw::c_void, ptr};
 
-use derive_more::derive::{AsMut, AsRef, Deref, DerefMut};
 use csfml_sys::{
     sfBool, sfMusic, sfMusic_createFromFile, sfMusic_createFromMemory, sfMusic_destroy,
     sfMusic_getAttenuation, sfMusic_getChannelCount, sfMusic_getDuration, sfMusic_getLoop,
@@ -10,6 +9,7 @@ use csfml_sys::{
     sfMusic_setPitch, sfMusic_setPlayingOffset, sfMusic_setPosition, sfMusic_setRelativeToListener,
     sfMusic_setVolume, sfMusic_stop,
 };
+use derive_more::derive::{AsMut, AsRef, Deref, DerefMut};
 
 use crate::system::{time::Time, Vector3f};
 

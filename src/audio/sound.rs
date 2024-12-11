@@ -93,7 +93,6 @@ impl SoundBuffer {
         unsafe { Time::from(sfSoundBuffer_getDuration(self.ptr)) }
     }
 
-    #[must_use]
     pub fn sample_count(&self) -> Result<usize> {
         unsafe { Ok(usize::try_from(sfSoundBuffer_getSampleCount(self.ptr))?) }
     }

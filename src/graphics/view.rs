@@ -18,6 +18,7 @@ pub struct View {
 
 impl View {
     /// Creates a view from a rectangle
+    #[must_use]
     pub fn from_rect(rect: FloatRect) -> Self {
         let mut ret = Self {
             center: rect.get_corner(),
@@ -44,6 +45,7 @@ impl View {
 
     /// Converts this view into a CSFML view
     /// This view must be destroyed manually!
+    #[must_use]
     pub fn to_csfml(&self) -> *mut sfView {
         let view = unsafe { sfView_create() };
         assert!(!view.is_null(), "Failed to create CSFML view");
@@ -56,6 +58,7 @@ impl View {
     }
 
     /// Returns the rectangle representing the view
+    #[must_use]
     pub fn get_rect(&self) -> FloatRect {
         FloatRect::new(
             self.center.x - self.size.x / 2.0,

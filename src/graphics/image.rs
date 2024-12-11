@@ -33,7 +33,7 @@ impl Drop for Image {
 
 impl Image {
     /// Creates a new image
-    pub fn create(size: Vector2u, color: Color) -> Result<Image, ImageError> {
+    pub fn create(size: Vector2u, color: Color) -> Result<Self, ImageError> {
         unsafe {
             let img = sfImage_createFromColor(size.x, size.y, color.to_csfml());
 
@@ -46,7 +46,7 @@ impl Image {
     }
 
     /// Creates an image from a pixel array
-    pub fn create_from_pixels(size: Vector2u, pixels: &[Color]) -> Result<Image, ImageError> {
+    pub fn create_from_pixels(size: Vector2u, pixels: &[Color]) -> Result<Self, ImageError> {
         if pixels.len() < (size.x * size.y) as usize {
             return Err(ImageError::NotEnoughData);
         }
@@ -62,7 +62,7 @@ impl Image {
     }
 
     /// Loads an image from a file
-    pub fn create_from_file(path: &str) -> Result<Image, ImageError> {
+    pub fn create_from_file(path: &str) -> Result<Self, ImageError> {
         let c_path = std::ffi::CString::new(path).map_err(|_| ImageError::PathIsNotAnImage)?;
         unsafe {
             let img = sfImage_createFromFile(c_path.as_ptr());
@@ -75,7 +75,7 @@ impl Image {
     }
 
     /// Loads an image from a file in memory
-    pub fn create_from_memory(data: &[u8]) -> Result<Image, ImageError> {
+    pub fn create_from_memory(data: &[u8]) -> Result<Self, ImageError> {
         unsafe {
             let img =
                 sfImage_createFromMemory(data.as_ptr().cast::<std::ffi::c_void>(), data.len());

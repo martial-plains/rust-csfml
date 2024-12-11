@@ -4,7 +4,7 @@ use csfml_sys::{
     sfCursor, sfCursorType, sfCursor_createFromPixels, sfCursor_createFromSystem, sfCursor_destroy,
     sfVector2u,
 };
-use std::{ffi::c_uint, ptr::NonNull};
+use std::ptr::NonNull;
 
 use crate::{system::Vector2u, types::Result};
 
