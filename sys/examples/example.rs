@@ -28,7 +28,7 @@ unsafe extern "C" fn main(_: c_int, _: *const *const c_char) -> c_uint {
     let window = sfRenderWindow_create(
         mode,
         c"SFML window".as_ptr(),
-        sfResize.0 | sfClose.0,
+        sfResize | sfClose,
         ptr::null(),
     );
 
