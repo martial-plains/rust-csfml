@@ -6,7 +6,7 @@ use core::{
     mem, ptr,
 };
 
-use sfml_sys::{
+use csfml_sys::{
     sfBlack, sfClose, sfEvent, sfEvtClosed, sfFont_createFromFile, sfFont_destroy,
     sfMusic_createFromFile, sfMusic_destroy, sfMusic_play, sfRenderWindow_clear,
     sfRenderWindow_close, sfRenderWindow_create, sfRenderWindow_destroy, sfRenderWindow_display,
@@ -28,7 +28,7 @@ unsafe extern "C" fn main(_: c_int, _: *const *const c_char) -> c_uint {
     let window = sfRenderWindow_create(
         mode,
         c"SFML window".as_ptr(),
-        sfResize.0 | sfClose.0,
+        sfResize | sfClose,
         ptr::null(),
     );
 

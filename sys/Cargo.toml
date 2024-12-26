@@ -1,21 +1,23 @@
 [package]
-name = "sfml-sys"
+name = "csfml-sys"
 version = "0.1.0"
 edition = "2021"
 
 [build-dependencies]
-bindgen = "0.70.1"
+bindgen = "0.71.1"
 flate2 = "1.0.34"
 reqwest = "0.12.9"
 tar = "0.4.43"
 tempfile = "3.13.0"
-tokio = { version = "1.41.0", features = ["macros", "rt-multi-thread"] }
-zip = "2.2.0"
+tokio = { version = "1.42.0", features = ["macros", "rt-multi-thread"] }
+zip = "2.2.2"
 
 [features]
 default = ["graphics", "audio"]
 window = []
 graphics = ["window"]
 audio = []
+network = []
+cached = []
 
 [dependencies]

@@ -8,7 +8,6 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use bindgen::CargoCallbacks;
 use flate2::read::GzDecoder;
 use reqwest::get;
 use tar::Archive;
@@ -24,10 +23,32 @@ async fn main() {
     let feat_window = env::var("CARGO_FEATURE_WINDOW").is_ok();
     let feat_graphics = env::var("CARGO_FEATURE_GRAPHICS").is_ok();
 
+    let feat_network = env::var("CARGO_FEATURE_NETWORK").is_ok();
+
+    let feat_cached = env::var("CARGO_FEATURE_CACHED").is_ok();
+
+    let file_path = if feat_cached {
+        let cache_dir = if cfg!(target_os = "windows") {
+            env::var("LOCALAPPDATA").expect("Failed to get LOCALAPPDATA")
+        } else {
+            env::var("XDG_CACHE_HOME").unwrap_or_else(|_| {
+                env::var("HOME")
+                    .map(|home| format!("{home}/.cache"))
+                    .unwrap()
+            })
+        };
+
+        let mut file_path = PathBuf::from(cache_dir);
+        file_path.push("CSFML");
+        file_path
+    } else {
+        PathBuf::from("./CSFML")
+    };
+
     // If the CSFML directory doesn't exist, download and extract it
-    if !Path::new("CSFML").exists() {
+    if !file_path.exists() {
         let url = get_cfml_url();
-        let _ = download_and_extract_csfml(url).await.unwrap();
+        download_and_extract_csfml(url, &file_path).await.unwrap();
     }
 
     // Set the library search path
@@ -35,28 +56,33 @@ async fn main() {
 
     // Generate wrapper header and bindings
     let bindings_header = "wrapper.h";
-    generate_wrapper(bindings_header, feat_audio, feat_window, feat_graphics);
-    generate_bindings(bindings_header);
+    generate_wrapper(
+        bindings_header,
+        feat_audio,
+        feat_window,
+        feat_graphics,
+        feat_network,
+    );
+    generate_bindings(bindings_header, &file_path);
 }
 
 /// Downloads and extracts the CSFML archive (ZIP or tar.gz) based on the platform.
-async fn download_and_extract_csfml(url: &str) -> Result<PathBuf, Box<dyn Error>> {
+async fn download_and_extract_csfml(url: &str, path: &Path) -> Result<(), Box<dyn Error>> {
     let archive = download_file(url).await?;
-    let extracted_dir = Path::new("CSFML");
 
     // Determine if it's a zip or tar.gz and extract accordingly
     if std::path::Path::new(url)
         .extension()
-        .map_or(false, |ext| ext.eq_ignore_ascii_case("zip"))
+        .is_some_and(|ext| ext.eq_ignore_ascii_case("zip"))
     {
-        extract_zip(archive, extracted_dir)?;
+        extract_zip(archive, path)?;
     } else if url.ends_with(".tar.gz") {
-        extract_tar_gz(archive, extracted_dir)?;
+        extract_tar_gz(archive, path)?;
     } else {
         return Err("Unsupported archive format".into());
     }
 
-    Ok(extracted_dir.to_path_buf())
+    Ok(())
 }
 
 /// Downloads the file at the specified URL and returns a file handle.
@@ -109,7 +135,9 @@ fn extract_tar_gz(archive: File, extracted_dir: &Path) -> Result<PathBuf, Box<dy
         .map(|mut entry| -> Result<(), Box<dyn Error>> {
             let path = entry.path()?;
             let new_path = adjust_path_for_csfml(path.to_path_buf())?;
-            entry.unpack(new_path)?;
+            // Make sure it's extracting into the correct cache directory
+            let final_path = extracted_dir.join(new_path.strip_prefix("CSFML")?);
+            entry.unpack(final_path)?;
             Ok(())
         })
         .collect::<Result<Vec<_>, Box<dyn Error>>>()?;
@@ -157,9 +185,13 @@ fn generate_wrapper(
     feat_audio: bool,
     feat_window: bool,
     feat_graphics: bool,
+    feat_network: bool,
 ) {
     let mut file = File::create(bindings_header).unwrap();
     let mut headers = Vec::new();
+
+    headers.push("SFML/System.h");
+    link_sfml_subsystem("system");
 
     if feat_audio {
         headers.push("SFML/Audio.h");
@@ -176,17 +208,24 @@ fn generate_wrapper(
         link_sfml_subsystem("graphics");
     }
 
+    if feat_network {
+        headers.push("SFML/Network.h");
+        link_sfml_subsystem("network");
+    }
+
     for header in headers {
         writeln!(file, "#include <{header}>").unwrap();
     }
 }
 
 /// Generates the bindings using the specified wrapper header.
-fn generate_bindings(binding_header: &str) {
+fn generate_bindings(binding_header: &str, file_path: &Path) {
+    let mut file_path = PathBuf::from(file_path);
+    file_path.push("include");
     let bindings = bindgen::Builder::default()
-        .clang_arg("-I./CSFML/include")
+        .clang_arg(format!("-I{}/", file_path.display()))
         .header(binding_header)
-        .parse_callbacks(Box::new(CargoCallbacks::new()))
+        .parse_callbacks(Box::new(bindgen::CargoCallbacks::new()))
         .use_core()
         .derive_default(true)
         .derive_copy(true)
@@ -196,10 +235,7 @@ fn generate_bindings(binding_header: &str) {
         .derive_ord(true)
         .derive_partialeq(true)
         .derive_partialord(true)
-        .default_enum_style(bindgen::EnumVariation::NewType {
-            is_bitfield: true,
-            is_global: true,
-        })
+        .default_enum_style(bindgen::EnumVariation::Consts)
         .prepend_enum_name(false)
         .generate_cstr(true)
         .generate()
